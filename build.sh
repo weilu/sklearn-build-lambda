@@ -17,6 +17,9 @@ yum install -y \
     openssl-devel
 
 do_pip () {
+    /root/.pyenv/shims/python3.6 -m venv --copies /sklearn_build
+    source /sklearn_build/bin/activate
+
     pip3.6 install --upgrade pip wheel
     pip3.6 install --use-wheel --no-binary numpy numpy
     pip3.6 install --use-wheel --no-binary scipy scipy
@@ -43,30 +46,18 @@ shared_libs () {
     cp /usr/lib64/libgfortran.so.3 $libdir
 }
 
-main () {
-
+install_36 () {
     git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
-    echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-    echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-    exec "$SHELL"
+    ~/.pyenv/bin/pyenv install 3.6.2
+    ~/.pyenv/bin/pyenv global 3.6.2
+    /root/.pyenv/shims/python3.6 --version
+    /root/.pyenv/shims/pip3.6 --version
+}
 
-    pyenv install 3.6.2
-    pyenv global 3.6.2
-
-    /usr/bin/virtualenv \
-        --python /root/.pyenv/versions/3.6.2/bin/python /sklearn_build \
-        --always-copy \
-        --no-site-packages
-    source /sklearn_build/bin/activate
-
+main () {
+    install_36
     do_pip
-
     shared_libs
-
     strip_virtualenv
-
-    
-
 }
 main
