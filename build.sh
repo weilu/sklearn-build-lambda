@@ -9,24 +9,26 @@ yum install -y \
     gcc \
     gcc-c++ \
     lapack-devel \
-    python27-devel \
-    python27-virtualenv \
     findutils \
-    zip
+    zip \
+    zlib-devel \
+    git \
+    openssl \
+    openssl-devel
 
 do_pip () {
-    pip install --upgrade pip wheel
-    pip install --use-wheel --no-binary numpy numpy
-    pip install --use-wheel --no-binary scipy scipy
-    pip install --use-wheel sklearn
+    pip3.6 install --upgrade pip wheel
+    pip3.6 install --use-wheel --no-binary numpy numpy
+    pip3.6 install --use-wheel --no-binary scipy scipy
+    pip3.6 install --use-wheel sklearn
 }
 
 strip_virtualenv () {
     echo "venv original size $(du -sh $VIRTUAL_ENV | cut -f1)"
-    find $VIRTUAL_ENV/lib64/python2.7/site-packages/ -name "*.so" | xargs strip
+    find $VIRTUAL_ENV/lib64/python3.6/site-packages/ -name "*.so" | xargs strip
     echo "venv stripped size $(du -sh $VIRTUAL_ENV | cut -f1)"
 
-    pushd $VIRTUAL_ENV/lib64/python2.7/site-packages/ && zip -r -9 -q /outputs/venv.zip * ; popd
+    pushd $VIRTUAL_ENV/lib64/python3.6/site-packages/ && zip -r -9 -q /outputs/venv.zip * ; popd
     echo "site-packages compressed size $(du -sh /outputs/venv.zip | cut -f1)"
 
     pushd $VIRTUAL_ENV && zip -r -q /outputs/full-venv.zip * ; popd
@@ -34,16 +36,26 @@ strip_virtualenv () {
 }
 
 shared_libs () {
-    libdir="$VIRTUAL_ENV/lib64/python2.7/site-packages/lib/"
-    mkdir -p $VIRTUAL_ENV/lib64/python2.7/site-packages/lib || true
+    libdir="$VIRTUAL_ENV/lib64/python3.6/site-packages/lib/"
+    mkdir -p $VIRTUAL_ENV/lib64/python3.6/site-packages/lib || true
     cp /usr/lib64/atlas/* $libdir
     cp /usr/lib64/libquadmath.so.0 $libdir
     cp /usr/lib64/libgfortran.so.3 $libdir
 }
 
 main () {
+
+    git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+    echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+    echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+    exec "$SHELL"
+
+    pyenv install 3.6.2
+    pyenv global 3.6.2
+
     /usr/bin/virtualenv \
-        --python /usr/bin/python /sklearn_build \
+        --python /root/.pyenv/versions/3.6.2/bin/python /sklearn_build \
         --always-copy \
         --no-site-packages
     source /sklearn_build/bin/activate
@@ -53,5 +65,8 @@ main () {
     shared_libs
 
     strip_virtualenv
+
+    
+
 }
 main
