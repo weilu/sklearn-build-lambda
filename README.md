@@ -4,14 +4,10 @@
 
 This repo contains a `build.sh` script that's intended to be run in an Amazon
 Linux docker container, and build scikit-learn, numpy, and scipy for use in AWS
-Lambda. For more info about how the script works, and how to use it, see my
+Lambda with Python 3.6. For more info about how the script works, and how to use it, see my
 [blog post on deploying sklearn to Lambda](https://serverlesscode.com/post/scikitlearn-with-amazon-linux-container/).
 
-There was an older version of this repo, now archived in the
-[ec2-build-process](https://github.com/ryansb/sklearn-build-lambda/tree/ec2-build-process)
-branch, used an EC2 instance to perform the build process and an Ansible
-playbook to execute the build. That version still works, but the new dockerized
-version doesn't require you to launch a remote instance.
+Because Python 3.6 is not yet yum-installable, we use a Linux build of Python 3.6 available with [pyenv](https://github.com/pyenv/pyenv).
 
 To build the zipfile, pull the Amazon Linux image and run the build script in
 it.
