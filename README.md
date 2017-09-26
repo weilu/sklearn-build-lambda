@@ -19,7 +19,7 @@ $ docker run -v $(pwd):/outputs -it amazonlinux:2016.09 \
 ```
 
 That will make a file called `venv.zip` in the local directory that's around
-40MB.
+45MB.
 
 Once you run this, you'll have a zipfile containing sklearn and its
 dependencies, to use them add your handler file to the zip, and add the `lib`
@@ -48,13 +48,13 @@ def handler(event, context):
 ## Sizing and Future Work
 
 With just compression and stripped binaries, the full sklearn stack weighs in
-at 39 MB, and could probably be reduced further by:
+at 45 MB, and could probably be reduced further by:
 
 1. Pre-compiling all .pyc files and deleting their source
 1. Removing test files
 1. Removing documentation
 
-For my purposes, 39 MB is sufficiently small, if you have any improvements to
+For my purposes, 45 MB is sufficiently small, if you have any improvements to
 share pull requests or issues are welcome.
 
 ## License
