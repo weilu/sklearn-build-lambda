@@ -21,6 +21,7 @@ do_pip () {
     source /sklearn_build/bin/activate
 
     pip3.6 install --upgrade pip wheel
+    test -f /outputs/requirements.txt && pip install --use-wheel -r /outputs/requirements.txt
     pip3.6 install --use-wheel --no-binary numpy numpy
     pip3.6 install --use-wheel --no-binary scipy scipy
     pip3.6 install --use-wheel sklearn
@@ -30,9 +31,11 @@ strip_virtualenv () {
     echo "venv original size $(du -sh $VIRTUAL_ENV | cut -f1)"
     find $VIRTUAL_ENV/lib64/python3.6/site-packages/ -name "*.so" | xargs strip
     echo "venv stripped size $(du -sh $VIRTUAL_ENV | cut -f1)"
+    find $VIRTUAL_ENV/lib64/python3.6/site-packages/ -name tests | xargs rm -rf
+    echo "venv tests removed size $(du -sh $VIRTUAL_ENV | cut -f1)"
 
-    pushd $VIRTUAL_ENV/lib64/python3.6/site-packages/ && zip -r -9 -q /outputs/venv.zip * ; popd
-    echo "site-packages compressed size $(du -sh /outputs/venv.zip | cut -f1)"
+    pushd $VIRTUAL_ENV/lib/python3.6/site-packages/ && zip -r -9 -q /tmp/partial-venv.zip * ; popd
+    pushd $VIRTUAL_ENV/lib64/python3.6/site-packages/ && zip -r -9 --out /outputs/venv.zip -q /tmp/partial-venv.zip * ; popd
 
     pushd $VIRTUAL_ENV && zip -r -q /outputs/full-venv.zip * ; popd
     echo "venv compressed size $(du -sh /outputs/full-venv.zip | cut -f1)"
